@@ -1,0 +1,51 @@
+---
+title: "ML"
+author: "Tom Reilly"
+date: "Saturday, November 15, 2014"
+output: html_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+#Read files into R
+Train <- read.csv("c:/rWork/pml-training.csv", header=T,
+                  stringsAsFactors = FALSE)
+Test <- read.csv("c:/rWork/pml-testing.csv", header=T,
+                 stringsAsFactors = FALSE)
+#Set options to no scientific notations and four digits
+options(scipen=999, digits=4)
+#Activate caret and rpart libraries
+library("caret", lib.loc="~/R/win-library/3.1")
+library("rpart", lib.loc="~/R/win-library/3.1")
+#Separate Training and Test data
+inTrain <- createDataPartition(y=Train$classe, p=.8, list=FALSE)
+training <- Train[inTrain,]
+trainingTest <- Train[-inTrain,]
+dim(training); dim(trainingTest)
+#display the classe variable graphically
+barchart(training$classe, horiz=TRUE, ylab="Class")
+#Fit classe to selected variables
+
+
+```
+
+You can also embed plots, for example:
+
+```{r, echo=TRUE}
+modFit <- rpart(classe~X+accel_arm_z+cvtd_timestamp+gyros_dumbbell_y+
+                    magnet_belt_y+total_accel_forearm, method="class",
+                data=trainingTest)
+#Predict the fitted rpart object
+pred <- predict(modFit, type = "prob")
+# display the results
+prcp <- printcp(modFit)
+# visualize cross-validation results
+plcp <- plotcp(modFit)
+#detailed summary of splits
+summ <- summary(modFit) 
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
